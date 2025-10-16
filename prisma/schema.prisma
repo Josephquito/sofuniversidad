@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/* ============ Core / Auth ============ */
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  status     Boolean  @default(true)
+  role       String   @default("USER")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  teacher    Teacher?
+  student    Student?
+}
+
+/* ============ Institution (singleton) ============ */
+model Institution {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  location  String?
+  phone     String?
+  email     String?
+
+  careers   Career[]
+}
+
+/* ============ Academic Structure ============ */
+model Career {
+  id             Int            @id @default(autoincrement())
+  institutionId  Int            @default(1)
+  name           String
+  code           String         @unique
+  degree         String?
+
+  institution    Institution    @relation(fields: [institutionId], references: [id])
+  subjects       Subject[]
+  enrollments    CycleEnrollment[]
+}
+
+model TermCycle {
+  id             Int              @id @default(autoincrement())
+  number         Int
+  description    String?
+  subjects       Subject[]
+  enrollments    CycleEnrollment[]
+}
+
+model Subject {
+  id         Int        @id @default(autoincrement())
+  name       String
+  code       String     @unique
+  credits    Int
+  hours      Int
+  careerId   Int
+  cycleId    Int
+
+  career     Career     @relation(fields: [careerId], references: [id])
+  cycle      TermCycle  @relation(fields: [cycleId], references: [id])
+  parallels  Parallel[]
+}
+
+/* ============ People & Rooms ============ */
+model Teacher {
+  id         Int       @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  cedula     String    @unique
+  email      String    @unique
+  phone      String?
+  userId     Int?      @unique
+
+  user       User?     @relation(fields: [userId], references: [id])
+  parallels  Parallel[]
+}
+
+model Classroom {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  building   String?
+  parallels  Parallel[]
+}
+
+/* ============ Periods & Offerings ============ */
+model AcademicPeriod {
+  id         Int              @id @default(autoincrement())
+  name       String
+  startDate  DateTime
+  endDate    DateTime
+  state      Boolean          @default(true)
+
+  parallels  Parallel[]
+  enrollments CycleEnrollment[]
+}
+
+model Parallel {
+  id           Int             @id @default(autoincrement())
+  subjectId    Int
+  periodId     Int
+  teacherId    Int
+  classroomId  Int
+  section      String
+
+  subject      Subject         @relation(fields: [subjectId], references: [id])
+  period       AcademicPeriod  @relation(fields: [periodId], references: [id])
+  teacher      Teacher         @relation(fields: [teacherId], references: [id])
+  classroom    Classroom       @relation(fields: [classroomId], references: [id])
+
+  @@unique([subjectId, periodId, section], name: "ux_parallels_subject_period_section")
+}
+
+/* ============ Students & Enrollments ============ */
+model Student {
+  id          Int               @id @default(autoincrement())
+  cedula      String            @unique
+  firstName   String
+  lastName    String
+  email       String            @unique
+  phone       String?
+  status      Boolean           @default(true)
+  userId      Int?              @unique
+
+  user        User?             @relation(fields: [userId], references: [id])
+  enrollments CycleEnrollment[]
+}
+
+model CycleEnrollment {
+  id          Int             @id @default(autoincrement())
+  studentId   Int
+  careerId    Int
+  periodId    Int
+  cycleId     Int
+  status      String          @default("ENROLLED")
+  enrolledOn  DateTime        @default(now())
+
+  student     Student         @relation(fields: [studentId], references: [id])
+  career      Career          @relation(fields: [careerId], references: [id])
+  period      AcademicPeriod  @relation(fields: [periodId], references: [id])
+  cycle       TermCycle       @relation(fields: [cycleId], references: [id])
+
+  @@unique([studentId, careerId, periodId, cycleId], name: "ux_cycle_enrollment_unique")
+}
