@@ -6,14 +6,14 @@ import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { Request } from 'express';
 
-// Tipo de usuario que manejamos en el JWT / respuestas
+// Tipo de usuario que viene DENTRO del token
 interface JwtUser {
-  id: number;
+  userId: number;
   email: string;
   name: string;
 }
 
-// Request extendido para tener req.user tipado
+// Extendemos Request para incluir req.user tipado
 interface AuthRequest extends Request {
   user: JwtUser;
 }
@@ -22,23 +22,22 @@ interface AuthRequest extends Request {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // POST /auth/register
   @Post('register')
-  register(
-    @Body() dto: RegisterDto,
-  ): Promise<{ user: JwtUser; access_token: string }> {
+  register(@Body() dto: RegisterDto): Promise<{ access_token: string }> {
     return this.authService.register(dto);
   }
 
+  // POST /auth/login
   @Post('login')
-  login(
-    @Body() dto: LoginDto,
-  ): Promise<{ user: JwtUser; access_token: string }> {
+  login(@Body() dto: LoginDto): Promise<{ access_token: string }> {
     return this.authService.login(dto);
   }
 
+  // GET /auth/profile  (requiere JWT)
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req: AuthRequest): JwtUser {
-    return req.user;
+    return req.user; // viene del payload del token
   }
 }

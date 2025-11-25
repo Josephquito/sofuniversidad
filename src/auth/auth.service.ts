@@ -30,15 +30,12 @@ export class AuthService {
     },
   ];
 
-  // NO async porque no usamos await
+  // Método interno para buscar por email
   private findByEmail(email: string): User | null {
     return this.users.find((u) => u.email === email) || null;
   }
 
-  async register(dto: RegisterDto): Promise<{
-    user: Omit<User, 'password'>;
-    access_token: string;
-  }> {
+  async register(dto: RegisterDto): Promise<{ access_token: string }> {
     const existing = this.findByEmail(dto.email);
     if (existing) {
       throw new ConflictException('Ese correo ya está registrado');
@@ -55,19 +52,11 @@ export class AuthService {
 
     const token = await this.generarToken(newUser);
 
-    // Evitar warning “password is assigned but never used”
-    const { password: _removed, ...userSinPassword } = newUser;
-
-    return {
-      user: userSinPassword,
-      access_token: token,
-    };
+    // ❗ DEVOLVEMOS SOLO EL TOKEN
+    return { access_token: token };
   }
 
-  async login(dto: LoginDto): Promise<{
-    user: Omit<User, 'password'>;
-    access_token: string;
-  }> {
+  async login(dto: LoginDto): Promise<{ access_token: string }> {
     const user = this.findByEmail(dto.email);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -79,12 +68,8 @@ export class AuthService {
 
     const token = await this.generarToken(user);
 
-    const { password: _removed, ...userSinPassword } = user;
-
-    return {
-      user: userSinPassword,
-      access_token: token,
-    };
+    // ❗ DEVOLVEMOS SOLO EL TOKEN
+    return { access_token: token };
   }
 
   private async generarToken(user: User): Promise<string> {
@@ -92,6 +77,9 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       name: user.name,
+      // aquí puedes agregar más info si luego deseas:
+      // role: user.role,
+      // phone: user.phone,
     };
 
     return this.jwtService.signAsync(payload);
