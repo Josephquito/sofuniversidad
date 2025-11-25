@@ -6,6 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Put,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { TermCyclesService } from './term-cycles.service';
 import { CreateTermCycleDto } from './dto/create-term-cycle.dto';
@@ -35,5 +38,26 @@ export class TermCyclesController {
   @Post()
   create(@Body() dto: CreateTermCycleDto) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateTermCycleDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateTermCycleDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  Delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
   }
 }

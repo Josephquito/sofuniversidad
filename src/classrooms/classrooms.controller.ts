@@ -6,6 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Put,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { ClassroomsService } from './classrooms.service';
 import { CreateClassroomDto } from './dto/create-classroom.dto';
@@ -35,5 +38,26 @@ export class ClassroomsController {
   @Post()
   create(@Body() dto: CreateClassroomDto) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateClassroomDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateClassroomDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  Delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
   }
 }

@@ -6,6 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Patch,
+  Delete,
+  Put,
 } from '@nestjs/common';
 import { AcademicPeriodsService } from './academic-periods.service';
 import { CreateAcademicPeriodDto } from './dto/create-academic-period.dto';
@@ -35,5 +38,26 @@ export class AcademicPeriodsController {
   @Post()
   create(@Body() dto: CreateAcademicPeriodDto) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateAcademicPeriodDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateAcademicPeriodDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  Delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
   }
 }

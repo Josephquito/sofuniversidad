@@ -21,6 +21,7 @@ export class ParallelsService {
       }),
       this.prisma.parallel.count(),
     ]);
+
     return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
@@ -35,5 +36,23 @@ export class ParallelsService {
 
   create(dto: CreateParallelDto) {
     return this.prisma.parallel.create({ data: dto });
+  }
+
+  async update(id: number, data: Partial<CreateParallelDto>) {
+    const exists = await this.prisma.parallel.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Parallel not found');
+
+    return this.prisma.parallel.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.parallel.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Parallel not found');
+
+    await this.prisma.parallel.delete({ where: { id } });
+    return { message: 'Parallel deleted successfully' };
   }
 }

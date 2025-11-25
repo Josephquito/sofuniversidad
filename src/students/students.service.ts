@@ -24,7 +24,6 @@ export class StudentsService {
     }
 
     if (typeof status !== 'undefined') {
-      // convierte "true"/"false" (o "1"/"0") a boolean
       const s = status.toLowerCase();
       where.status = s === 'true' || s === '1';
     }
@@ -36,7 +35,6 @@ export class StudentsService {
       ];
     }
 
-    // deja que Prisma infiera tipos en $transaction
     const [items, total] = await this.prisma.$transaction([
       this.prisma.student.findMany({
         where,
@@ -47,13 +45,7 @@ export class StudentsService {
       this.prisma.student.count({ where }),
     ]);
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    };
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   async findOne(id: number) {
@@ -67,5 +59,23 @@ export class StudentsService {
 
   create(dto: CreateStudentDto) {
     return this.prisma.student.create({ data: dto });
+  }
+
+  async update(id: number, data: Partial<CreateStudentDto>) {
+    const exists = await this.prisma.student.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Student not found');
+
+    return this.prisma.student.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.student.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Student not found');
+
+    await this.prisma.student.delete({ where: { id } });
+    return { message: 'Student deleted successfully' };
   }
 }

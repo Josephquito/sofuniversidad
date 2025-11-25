@@ -11,6 +11,7 @@ import { AcademicPeriodsModule } from './academic-periods/academic-periods.modul
 import { ParallelsModule } from './parallels/parallels.module';
 import { StudentsModule } from './students/students.module';
 import { CycleEnrollmentsModule } from './cycle-enrollments/cycle-enrollments.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CycleEnrollmentsModule } from './cycle-enrollments/cycle-enrollments.mo
     ParallelsModule,
     StudentsModule,
     CycleEnrollmentsModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

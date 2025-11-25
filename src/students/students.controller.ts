@@ -6,6 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Put,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -47,5 +50,26 @@ export class StudentsController {
   @Post()
   create(@Body() dto: CreateStudentDto) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateStudentDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateStudentDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  Delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
   }
 }

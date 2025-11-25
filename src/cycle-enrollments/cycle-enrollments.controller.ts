@@ -6,6 +6,9 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  Put,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { CycleEnrollmentsService } from './cycle-enrollments.service';
 import { CreateCycleEnrollmentDto } from './dto/create-cycle-enrollment.dto';
@@ -55,5 +58,26 @@ export class CycleEnrollmentsController {
   @Post()
   create(@Body() dto: CreateCycleEnrollmentDto) {
     return this.service.create(dto);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateCycleEnrollmentDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Patch(':id')
+  patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateCycleEnrollmentDto>,
+  ) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  Delete(@Param('id', ParseIntPipe) id: number) {
+    return this.service.remove(id);
   }
 }

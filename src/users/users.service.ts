@@ -10,7 +10,7 @@ export class UsersService {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         skip: (page - 1) * limit,
-        take: limit,
+        take: Number(limit),
         orderBy: { id: 'desc' },
       }),
       this.prisma.user.count(),
@@ -26,5 +26,23 @@ export class UsersService {
 
   create(dto: CreateUserDto) {
     return this.prisma.user.create({ data: dto });
+  }
+
+  async update(id: number, data: Partial<CreateUserDto>) {
+    const exists = await this.prisma.user.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('User not found');
+
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.user.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('User not found');
+
+    await this.prisma.user.delete({ where: { id } });
+    return { message: 'User deleted successfully' };
   }
 }

@@ -31,4 +31,22 @@ export class CareersService {
   create(dto: CreateCareerDto) {
     return this.prisma.career.create({ data: dto });
   }
+
+  async update(id: number, data: Partial<CreateCareerDto>) {
+    const exists = await this.prisma.career.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Career not found');
+
+    return this.prisma.career.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.career.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Career not found');
+
+    await this.prisma.career.delete({ where: { id } });
+    return { message: 'Career deleted successfully' };
+  }
 }

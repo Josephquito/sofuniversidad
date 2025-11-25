@@ -37,4 +37,30 @@ export class AcademicPeriodsService {
       },
     });
   }
+
+  async update(id: number, data: Partial<CreateAcademicPeriodDto>) {
+    const exists = await this.prisma.academicPeriod.findUnique({
+      where: { id },
+    });
+    if (!exists) throw new NotFoundException('AcademicPeriod not found');
+
+    return this.prisma.academicPeriod.update({
+      where: { id },
+      data: {
+        ...data,
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate ? new Date(data.endDate) : undefined,
+      },
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.academicPeriod.findUnique({
+      where: { id },
+    });
+    if (!exists) throw new NotFoundException('AcademicPeriod not found');
+
+    await this.prisma.academicPeriod.delete({ where: { id } });
+    return { message: 'AcademicPeriod deleted successfully' };
+  }
 }

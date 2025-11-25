@@ -30,4 +30,22 @@ export class ClassroomsService {
   create(dto: CreateClassroomDto) {
     return this.prisma.classroom.create({ data: dto });
   }
+
+  async update(id: number, data: Partial<CreateClassroomDto>) {
+    const exists = await this.prisma.classroom.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Classroom not found');
+
+    return this.prisma.classroom.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.classroom.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Classroom not found');
+
+    await this.prisma.classroom.delete({ where: { id } });
+    return { message: 'Classroom deleted successfully' };
+  }
 }

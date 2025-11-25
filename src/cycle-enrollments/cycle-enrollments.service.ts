@@ -7,7 +7,7 @@ import type { Prisma } from '@prisma/client';
 type FindAllParams = {
   page?: number;
   limit?: number;
-  studentId?: string; // llegan como query string
+  studentId?: string;
   careerId?: string;
   periodId?: string;
   cycleId?: string;
@@ -37,7 +37,6 @@ export class CycleEnrollmentsService {
     if (cycleId) where.cycleId = Number(cycleId);
     if (status) where.status = status;
 
-    // ✅ sin genérico en $transaction (deja que infiera)
     const [items, total] = await this.prisma.$transaction([
       this.prisma.cycleEnrollment.findMany({
         where,
@@ -54,13 +53,7 @@ export class CycleEnrollmentsService {
       this.prisma.cycleEnrollment.count({ where }),
     ]);
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    };
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   async findOne(id: number) {
@@ -83,5 +76,30 @@ export class CycleEnrollmentsService {
         enrolledOn: dto.enrolledOn ? new Date(dto.enrolledOn) : undefined,
       },
     });
+  }
+
+  async update(id: number, data: Partial<CreateCycleEnrollmentDto>) {
+    const exists = await this.prisma.cycleEnrollment.findUnique({
+      where: { id },
+    });
+    if (!exists) throw new NotFoundException('Cycle enrollment not found');
+
+    return this.prisma.cycleEnrollment.update({
+      where: { id },
+      data: {
+        ...data,
+        enrolledOn: data.enrolledOn ? new Date(data.enrolledOn) : undefined,
+      },
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.cycleEnrollment.findUnique({
+      where: { id },
+    });
+    if (!exists) throw new NotFoundException('Cycle enrollment not found');
+
+    await this.prisma.cycleEnrollment.delete({ where: { id } });
+    return { message: 'Cycle enrollment deleted successfully' };
   }
 }

@@ -30,4 +30,22 @@ export class TeachersService {
   create(dto: CreateTeacherDto) {
     return this.prisma.teacher.create({ data: dto });
   }
+
+  async update(id: number, data: Partial<CreateTeacherDto>) {
+    const exists = await this.prisma.teacher.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Teacher not found');
+
+    return this.prisma.teacher.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.teacher.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Teacher not found');
+
+    await this.prisma.teacher.delete({ where: { id } });
+    return { message: 'Teacher deleted successfully' };
+  }
 }

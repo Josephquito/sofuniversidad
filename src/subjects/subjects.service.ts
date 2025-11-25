@@ -31,4 +31,22 @@ export class SubjectsService {
   create(dto: CreateSubjectDto) {
     return this.prisma.subject.create({ data: dto });
   }
+
+  async update(id: number, data: Partial<CreateSubjectDto>) {
+    const exists = await this.prisma.subject.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Subject not found');
+
+    return this.prisma.subject.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.subject.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('Subject not found');
+
+    await this.prisma.subject.delete({ where: { id } });
+    return { message: 'Subject deleted successfully' };
+  }
 }

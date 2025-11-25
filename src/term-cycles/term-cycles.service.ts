@@ -30,4 +30,22 @@ export class TermCyclesService {
   create(dto: CreateTermCycleDto) {
     return this.prisma.termCycle.create({ data: dto });
   }
+
+  async update(id: number, data: Partial<CreateTermCycleDto>) {
+    const exists = await this.prisma.termCycle.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('TermCycle not found');
+
+    return this.prisma.termCycle.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async remove(id: number) {
+    const exists = await this.prisma.termCycle.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException('TermCycle not found');
+
+    await this.prisma.termCycle.delete({ where: { id } });
+    return { message: 'TermCycle deleted successfully' };
+  }
 }
